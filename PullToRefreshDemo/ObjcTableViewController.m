@@ -24,6 +24,11 @@
   [self.tableView addSubview:self.refreshView];
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+  self.refreshView.frame = CGRectMake(0, -100, size.width, 100);
+}
+
 #pragma mark - Table view data source
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
   return 20;
@@ -33,7 +38,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DemoCell" forIndexPath:indexPath];
   
-  cell.textLabel.text = [NSString stringWithFormat:@"Row %d", indexPath.row];
+  cell.textLabel.text = [NSString stringWithFormat:@"Row %d", (int)indexPath.row];
   
   return cell;
 }
@@ -43,12 +48,12 @@
   [self.refreshView scrollViewDidScroll:scrollView];
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-  [self.refreshView scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+  [self.refreshView scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
 }
 
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-  [self.refreshView scrollViewWillBeginDecelerating:scrollView];
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+  [self.refreshView scrollViewWillBeginDragging:scrollView];
 }
 
 - (void)refreshViewDidRefresh:(BreakOutToRefreshView * __nonnull)refreshView {

@@ -29,6 +29,11 @@ class DemoTableViewController: UITableViewController {
     tableView.addSubview(refreshView)
     
   }
+
+  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    refreshView.frame = CGRect(x: 0, y: -100, width: size.width, height: 100)
+  }
   
   // MARK: - Table view data source
   override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -43,7 +48,6 @@ class DemoTableViewController: UITableViewController {
     
     return cell
   }
-  
 }
 
 extension DemoTableViewController {

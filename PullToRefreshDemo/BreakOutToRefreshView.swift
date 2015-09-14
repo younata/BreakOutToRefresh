@@ -90,7 +90,7 @@ public class BreakOutToRefreshView: SKView {
 
   public init(scrollView inScrollView: UIScrollView) {
 
-    let frame = CGRect(x: 0.0, y: -sceneHeight, width: inScrollView.frame.size.width, height: sceneHeight)
+    let frame = CGRect(x: 0.0, y: -sceneHeight, width: inScrollView.bounds.size.width, height: sceneHeight)
 
     breakOutScene = BreakOutScene(size: frame.size)
     self.scrollView = inScrollView
@@ -115,10 +115,16 @@ public class BreakOutToRefreshView: SKView {
     presentScene(startScene)
   }
 
+  public override func layoutSubviews() {
+    super.layoutSubviews()
+
+    let size = CGSize(width: scrollView.bounds.size.width, height: sceneHeight)
+    breakOutScene.size = size
+  }
+
   public required init(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
 
   public func beginRefreshing() {
     isRefreshing = true
@@ -202,6 +208,7 @@ class BreakOutScene: SKScene, SKPhysicsContactDelegate {
   var paddleColor: UIColor!
   var ballColor: UIColor!
   var blockColors: [UIColor]!
+  var edges: SKNode?
 
   override func didMoveToView(view: SKView) {
     super.didMoveToView(view)
@@ -209,6 +216,27 @@ class BreakOutScene: SKScene, SKPhysicsContactDelegate {
       createSceneContents()
       contentCreated = true
     }
+  }
+
+  override func didChangeSize(oldSize: CGSize) {
+    super.didChangeSize(oldSize)
+
+    guard contentCreated else {
+      return
+    }
+
+    // update the position of everything
+    physicsBody = SKPhysicsBody(edgeLoopFromRect: frame)
+    physicsBody?.restitution = 1.0
+    physicsBody?.friction = 0.0
+
+    edges?.physicsBody = SKPhysicsBody(edgeFromPoint: CGPointMake(frame.size.width - 1, 0),
+      toPoint: CGPointMake(frame.size.width - 1, frame.size.height))
+    if let paddle = childNodeWithName(paddleName) {
+      paddle.position = CGPoint(x: frame.size.width-30.0, y: CGRectGetMidY(frame))
+    }
+
+    reset()
   }
 
   override func update(currentTime: NSTimeInterval) {
@@ -240,11 +268,12 @@ class BreakOutScene: SKScene, SKPhysicsContactDelegate {
     physicsBody?.friction = 0.0
     name = "scene"
 
-    let back = SKNode()
-    back.physicsBody = SKPhysicsBody(edgeFromPoint: CGPointMake(frame.size.width - 1, 0),
+    let edgesNode = SKNode()
+    edgesNode.physicsBody = SKPhysicsBody(edgeFromPoint: CGPointMake(frame.size.width - 1, 0),
         toPoint: CGPointMake(frame.size.width - 1, frame.size.height))
-    back.physicsBody?.categoryBitMask = backCategory
-    addChild(back)
+    edgesNode.physicsBody?.categoryBitMask = backCategory
+    addChild(edgesNode)
+    edges = edgesNode
 
     createLoadingLabelNode()
 
@@ -254,7 +283,6 @@ class BreakOutScene: SKScene, SKPhysicsContactDelegate {
 
     createBall()
     createBlocks()
-
   }
 
   func createPaddle() -> SKSpriteNode {
@@ -430,7 +458,6 @@ class StartScene: SKScene {
     let startNode = SKLabelNode(text: "Pull to Break Out!")
     startNode.fontColor = self.textColor
     startNode.fontSize = 20
-    startNode.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame))
     startNode.name = "start"
 
     return startNode
@@ -440,7 +467,6 @@ class StartScene: SKScene {
     let descriptionNode = SKLabelNode(text: "Scroll to move handle")
     descriptionNode.fontColor = self.textColor
     descriptionNode.fontSize = 17
-    descriptionNode.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame)-20)
     descriptionNode.name = "description"
 
     return descriptionNode
@@ -450,8 +476,20 @@ class StartScene: SKScene {
     super.didMoveToView(view)
     if !contentCreated {
       createSceneContents()
+      moveNodes()
       contentCreated = true
     }
+  }
+
+  override func didChangeSize(oldSize: CGSize) {
+    super.didChangeSize(oldSize)
+
+    moveNodes()
+  }
+
+  private func moveNodes() {
+    startLabelNode.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame))
+    descriptionLabelNode.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame)-20)
   }
 
   func createSceneContents() {
