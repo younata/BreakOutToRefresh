@@ -120,6 +120,7 @@ public class BreakOutToRefreshView: SKView {
 
     let size = CGSize(width: scrollView.bounds.size.width, height: sceneHeight)
     breakOutScene.size = size
+    startScene.size = size
   }
 
   public required init(coder aDecoder: NSCoder) {
