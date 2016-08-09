@@ -238,9 +238,11 @@ class BreakOutScene: SKScene, SKPhysicsContactDelegate {
 
     edges?.physicsBody = SKPhysicsBody(edgeFromPoint: CGPointMake(frame.size.width - 1, 0),
       toPoint: CGPointMake(frame.size.width - 1, frame.size.height))
+    edges?.physicsBody?.categoryBitMask = backCategory
     if let paddle = childNodeWithName(paddleName) {
       paddle.position = CGPoint(x: frame.size.width-30.0, y: CGRectGetMidY(frame))
     }
+    loadingLabelNode.position = CGPoint(x: CGRectGetMidX(frame), y: CGRectGetMidY(frame))
 
     reset()
   }
@@ -282,6 +284,7 @@ class BreakOutScene: SKScene, SKPhysicsContactDelegate {
     edges = edgesNode
 
     createLoadingLabelNode()
+
 
     let paddle = createPaddle()
     paddle.position = CGPoint(x: frame.size.width-30.0, y: CGRectGetMidY(frame))
@@ -364,14 +367,19 @@ class BreakOutScene: SKScene, SKPhysicsContactDelegate {
     }
   }
 
-  func createLoadingLabelNode() {
+  private lazy var loadingLabelNode: SKLabelNode = {
     let loadingLabelNode = SKLabelNode(text: "Loading...")
-    loadingLabelNode.fontColor = textColor
+    loadingLabelNode.fontColor = self.textColor
     loadingLabelNode.fontSize = 20
-    loadingLabelNode.position = CGPoint(x: CGRectGetMidX(frame), y: CGRectGetMidY(frame))
-    loadingLabelNode.name = backgroundLabelName
+    loadingLabelNode.name = self.backgroundLabelName
 
-    addChild(loadingLabelNode)
+    return loadingLabelNode
+  }()
+
+  func createLoadingLabelNode() {
+    loadingLabelNode.position = CGPoint(x: CGRectGetMidX(frame), y: CGRectGetMidY(frame))
+
+    addChild(self.loadingLabelNode)
   }
 
   func reset() {
