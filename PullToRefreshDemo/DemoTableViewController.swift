@@ -17,7 +17,7 @@ class DemoTableViewController: UITableViewController {
     
 //    let refreshHeight = CGFloat(100)
     refreshView = BreakOutToRefreshView(scrollView: tableView)
-    refreshView.delegate = self
+    refreshView.breakoutDelegate = self
     
     // configure the refresh view
 //    refreshView.scenebackgroundColor = UIColor(hue: 0.68, saturation: 0.9, brightness: 0.3, alpha: 1.0)
@@ -30,21 +30,21 @@ class DemoTableViewController: UITableViewController {
     
   }
 
-  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+  override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    super.viewWillTransition(to: size, with: coordinator)
     refreshView.frame = CGRect(x: 0, y: -100, width: size.width, height: 100)
   }
   
   // MARK: - Table view data source
-  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return 20
   }
   
   
-  override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier("DemoCell", forIndexPath: indexPath)
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "DemoCell", for: indexPath)
     
-    cell.textLabel?.text = "Row \(indexPath.row)"
+    cell.textLabel?.text = "Row \((indexPath as NSIndexPath).row)"
     
     return cell
   }
@@ -52,24 +52,24 @@ class DemoTableViewController: UITableViewController {
 
 extension DemoTableViewController {
  
-  override func scrollViewDidScroll(scrollView: UIScrollView) {
+  override func scrollViewDidScroll(_ scrollView: UIScrollView) {
     refreshView.scrollViewDidScroll(scrollView)
   }
   
-  override func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+  override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
     refreshView.scrollViewWillEndDragging(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset)
   }
   
-  override func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+  override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
     refreshView.scrollViewWillBeginDragging(scrollView)
   }
 }
 
 extension DemoTableViewController: BreakOutToRefreshDelegate {
   
-  func refreshViewDidRefresh(refreshView: BreakOutToRefreshView) {
+  func refreshViewDidRefresh(_ refreshView: BreakOutToRefreshView) {
     // this code is to simulage the loading from the internet
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC * 3)), dispatch_get_main_queue(), { () -> Void in
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(NSEC_PER_SEC * 3)) / Double(NSEC_PER_SEC), execute: { () -> Void in
       refreshView.endRefreshing()
     })
   }
